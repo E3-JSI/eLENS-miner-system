@@ -133,7 +133,7 @@ instructions on how to run the service in development mode with additional param
 ##### Linux and Mac
 
 ```bash
-python -m service.main start \
+python -m search.main start \
     -H localhost \
     -p 4000
 ```

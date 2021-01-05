@@ -13,6 +13,7 @@ def format_document(document):
         obj: the formatted document object.
 
     """
+    languages = [lang.strip().capitalize() for lang in document["_source"]["languages"]] if document["_source"]["languages"] else None
     return {
         "score": document["_score"],
         "document_id": document["_source"]["document_id"],
@@ -24,7 +25,7 @@ def format_document(document):
         "keywords": document["_source"]["keywords"],
         "source": document["_source"]["source"],
         "informea": document["_source"]["informea"],
-        "languages": document["_source"]["languages"],
+        "languages": languages,
         "subjects": document["_source"]["subjects"],
         "areas": document["_source"]["areas"]
     }

@@ -79,30 +79,6 @@ def search():
 
         must_query = []
 
-        # prepare the locations
-        if locations:
-            es_locations = locations.split(",")
-            must_query.append({
-                "nested": {
-                    "path": "named_entities",
-                    "query": {
-                        "bool": {
-                            "must": [{
-                                "terms": { "named_entities.name": es_locations }
-                            }, {
-                                "term": { "named_entities.type": "LOCATION" }
-                            }]
-                        }
-                    }
-                }
-            })
-
-        if languages:
-            es_languages = languages.split(",")
-            must_query.append({
-                "terms": { "languages": es_languages }
-            })
-
         if informea:
             es_informea = informea.split(",")
             must_query.append({
@@ -136,6 +112,30 @@ def search():
             "terms": { "source": sources.split(",") }
         })
 
+        # prepare the locations
+        if locations:
+            es_locations = locations.split(",")
+            filter_query.append({
+                "nested": {
+                    "path": "named_entities",
+                    "query": {
+                        "bool": {
+                            "must": [{
+                                "terms": { "named_entities.name": es_locations }
+                            }, {
+                                "term": { "named_entities.type": "LOCATION" }
+                            }]
+                        }
+                    }
+                }
+            })
+
+        if languages:
+            es_languages = languages.split(",")
+            filter_query.append({
+                "terms": { "languages": es_languages }
+            })
+
         #########################################
         # Prepare the pagination params
         #########################################
@@ -160,6 +160,7 @@ def search():
             "from": offset,
             "size": size,
             "sort" : [
+                { "date": { "order": "desc" } },
                 "_score"
             ],
             "query": {
@@ -167,7 +168,7 @@ def search():
                     "filter": filter_query
                 }
             },
-            "min_score": 4,
+            "min_score": 2,
             "track_total_hits": True
         }
 
@@ -177,7 +178,6 @@ def search():
         if len(should_query) != 0:
             es_query["query"]["bool"]["should"] = should_query;
 
-        print(es_query)
         # run the query on elasticsearch
         results = es.search(index="envirolens", body=es_query)
 
@@ -208,14 +208,12 @@ def search():
             "page": page + 1
         }) if page + 1 <= TOTAL_PAGES else None
 
-
-
     except Exception as e:
         # TODO: log exception
         # something went wrong with the request
         return abort(400, str(e))
     else:
-        # TODO: return the documents
+        # return the documents
         return jsonify({
             "query": {
                 "text": text,
