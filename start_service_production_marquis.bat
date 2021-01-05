@@ -3,7 +3,7 @@
 :: to give the right hosts and ports in the main service command
 
 :: Activating document retrieval microservice
-start cmd /k "venv\Scripts\activate.bat && cd document_retrieval && python -m microservice.main start -H localhost -p 4322 -e production"
+start cmd /k "venv\Scripts\activate.bat && cd search && python -m search.main start -H localhost -p 4322 -e production"
 
 :: Activating document similarity microservice
 start cmd /k "venv\Scripts\activate.bat && cd document_similarity && python -m microservice.main start -H localhost -p 4323 -e production"

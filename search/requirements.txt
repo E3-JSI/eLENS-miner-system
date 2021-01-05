@@ -43,3 +43,5 @@ urllib3==1.25.3
 Werkzeug==0.15.4
 wincertstore==0.2
 wrapt==1.11.2
+waitress==1.4.3
+pycountry== 19.8.18

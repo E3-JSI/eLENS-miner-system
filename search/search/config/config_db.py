@@ -22,12 +22,16 @@ def get_db():
         # get database and password for establishing the conncetion
         database = current_app.config['DATABASE']['database']
         password = current_app.config['DATABASE']['password']
+        username = current_app.config['DATABASE']['username']
         # connect to the database
-        g.db.connect(database, password)
+        g.db.connect(
+            database=database,
+            password=password,
+            username=username
+        )
 
     # return the database connection
     return g.db
-
 
 def close_db(e=None):
     """Closes the connection to the database"""

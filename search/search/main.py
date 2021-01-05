@@ -1,6 +1,6 @@
 import argparse
 from waitress import serve
-from microservice import create_app
+from search import create_app
 
 if __name__=='__main__':
     # parse command line arguments

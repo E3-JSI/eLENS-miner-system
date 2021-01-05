@@ -75,11 +75,13 @@ Currently you are able to run only one version of the text embedding so that it 
 * Create `.env` file and inside define the following variables:
   ```bash
   PROD_PG_DATABASE=
+  PROD_PG_USERNAME=
   PROD_PG_PASSWORD=
   PROD_TEXT_EMBEDDING_HOST=
   PROD_TEXT_EMBEDDING_PORT=
 
   DEV_PG_DATABASE=
+  DEV_PG_USERNAME=
   DEV_PG_PASSWORD=
   DEV_TEXT_EMBEDDING_HOST=
   DEV_TEXT_EMBEDDING_PORT=

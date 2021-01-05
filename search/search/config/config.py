@@ -20,6 +20,7 @@ class ProductionConfig(Config):
     SECRET_KEY=os.getenv('PROD_SECRET_KEY')
     DATABASE={
         'database': os.getenv('PROD_PG_DATABASE'),
+        'username': os.getenv('PROD_PG_USERNAME'),
         'password': os.getenv('PROD_PG_PASSWORD')
     }
     TEXT_EMBEDDING_HOST = os.getenv('PROD_TEXT_EMBEDDING_HOST')
@@ -32,6 +33,7 @@ class DevelopmentConfig(Config):
     SECRET_KEY=os.getenv('DEV_SECRET_KEY')
     DATABASE={
         'database': os.getenv('DEV_PG_DATABASE'),
+        'username': os.getenv('DEV_PG_USERNAME'),
         'password': os.getenv('DEV_PG_PASSWORD')
     }
 
