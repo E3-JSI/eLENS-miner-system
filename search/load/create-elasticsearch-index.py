@@ -200,6 +200,7 @@ if __name__=='__main__':
     for document in documents:
         if "date" in document and document["date"]:
             # format the date value
+            print(document["date"])
 
             if "/" in document["date"]:
                 date = document["date"].split("/")
@@ -217,8 +218,6 @@ if __name__=='__main__':
         elif "date" in document and document["date"] == '':
             document["date"] = None
 
-
-        print(document["date"])
 
         # limit the number of entities
         document["named_entities"] = document["named_entities"][:5000] if document["named_entities"] else None
@@ -262,7 +261,14 @@ if __name__=='__main__':
         print(document["languages"])
         print(document["document_id"])
 
-        es.index(index="envirolens", id=document["document_id"], body=document)
+        try:
+            es.index(index="envirolens", id=document["document_id"], body=document)
+        except KeyboardInterrupt:
+            raise
+        except Exception as e:
+            print(str(e))
+            pass
+
         if count % 1000 == 0:
             print("Number of indexed documents:", count)
         count = count + 1

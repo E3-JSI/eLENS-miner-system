@@ -3,9 +3,9 @@
 
 import sys
 import json
-import requests
 import math
-from urllib.parse import urlparse, parse_qsl, urlunparse, urlencode
+import requests
+
 
 from flask import (
     Blueprint, flash, g, redirect, request, session, url_for, jsonify, current_app as app
@@ -28,37 +28,7 @@ MIN_PAGE = 1
 
 # get the database configuration object
 from ..config import config_es
-
-# add helper functions
-def format_document(document):
-    return {
-        "score": document["_score"],
-        "document_id": document["_source"]["document_id"],
-        "title": document["_source"]["title"],
-        "abstract": document["_source"]["abstract"],
-        "link": document["_source"]["link"],
-        "date": document["_source"]["date"],
-        "celex": document["_source"]["celex"],
-        "keywords": document["_source"]["keywords"],
-        "source": document["_source"]["source"],
-        "informea": document["_source"]["informea"],
-        "languages": document["_source"]["languages"],
-        "subjects": document["_source"]["subjects"],
-        "areas": document["_source"]["areas"]
-    }
-
-
-def format_url(url, params):
-    # part the url
-    url_parts = list(urlparse(url))
-    # get the query parameters of the url
-    query = dict(parse_qsl(url_parts[4]))
-    # add the query parameters
-    query.update(params)
-    # encode the query parameters
-    url_parts[4] = urlencode(query)
-    # create the url
-    return urlunparse(url_parts)
+from ..library.formatter import format_document, format_url
 
 #################################################
 # Setup the embeddings blueprint
