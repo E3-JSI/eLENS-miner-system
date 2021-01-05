@@ -3,9 +3,9 @@
 
 import sys
 import json
-import requests
 import math
-from urllib.parse import urlparse, parse_qsl, urlunparse, urlencode
+import requests
+
 
 from flask import (
     Blueprint, flash, g, redirect, request, session, url_for, jsonify, current_app as app
@@ -28,37 +28,7 @@ MIN_PAGE = 1
 
 # get the database configuration object
 from ..config import config_es
-
-# add helper functions
-def format_document(document):
-    return {
-        "score": document["_score"],
-        "document_id": document["_source"]["document_id"],
-        "title": document["_source"]["title"],
-        "abstract": document["_source"]["abstract"],
-        "link": document["_source"]["link"],
-        "date": document["_source"]["date"],
-        "celex": document["_source"]["celex"],
-        "keywords": document["_source"]["keywords"],
-        "source": document["_source"]["source"],
-        "informea": document["_source"]["informea"],
-        "languages": document["_source"]["languages"],
-        "subjects": document["_source"]["subjects"],
-        "areas": document["_source"]["areas"]
-    }
-
-
-def format_url(url, params):
-    # part the url
-    url_parts = list(urlparse(url))
-    # get the query parameters of the url
-    query = dict(parse_qsl(url_parts[4]))
-    # add the query parameters
-    query.update(params)
-    # encode the query parameters
-    url_parts[4] = urlencode(query)
-    # create the url
-    return urlunparse(url_parts)
+from ..library.formatter import format_document, format_url
 
 #################################################
 # Setup the embeddings blueprint
@@ -109,30 +79,6 @@ def search():
 
         must_query = []
 
-        # prepare the locations
-        if locations:
-            es_locations = locations.split(",")
-            must_query.append({
-                "nested": {
-                    "path": "named_entities",
-                    "query": {
-                        "bool": {
-                            "must": [{
-                                "terms": { "named_entities.name": es_locations }
-                            }, {
-                                "term": { "named_entities.type": "LOCATION" }
-                            }]
-                        }
-                    }
-                }
-            })
-
-        if languages:
-            es_languages = languages.split(",")
-            must_query.append({
-                "terms": { "languages": es_languages }
-            })
-
         if informea:
             es_informea = informea.split(",")
             must_query.append({
@@ -166,6 +112,30 @@ def search():
             "terms": { "source": sources.split(",") }
         })
 
+        # prepare the locations
+        if locations:
+            es_locations = locations.split(",")
+            filter_query.append({
+                "nested": {
+                    "path": "named_entities",
+                    "query": {
+                        "bool": {
+                            "must": [{
+                                "terms": { "named_entities.name": es_locations }
+                            }, {
+                                "term": { "named_entities.type": "LOCATION" }
+                            }]
+                        }
+                    }
+                }
+            })
+
+        if languages:
+            es_languages = languages.split(",")
+            filter_query.append({
+                "terms": { "languages": es_languages }
+            })
+
         #########################################
         # Prepare the pagination params
         #########################################
@@ -190,6 +160,7 @@ def search():
             "from": offset,
             "size": size,
             "sort" : [
+                { "date": { "order": "desc" } },
                 "_score"
             ],
             "query": {
@@ -197,7 +168,7 @@ def search():
                     "filter": filter_query
                 }
             },
-            "min_score": 4,
+            "min_score": 2,
             "track_total_hits": True
         }
 
@@ -207,7 +178,6 @@ def search():
         if len(should_query) != 0:
             es_query["query"]["bool"]["should"] = should_query;
 
-        print(es_query)
         # run the query on elasticsearch
         results = es.search(index="envirolens", body=es_query)
 
@@ -238,14 +208,12 @@ def search():
             "page": page + 1
         }) if page + 1 <= TOTAL_PAGES else None
 
-
-
     except Exception as e:
         # TODO: log exception
         # something went wrong with the request
         return abort(400, str(e))
     else:
-        # TODO: return the documents
+        # return the documents
         return jsonify({
             "query": {
                 "text": text,

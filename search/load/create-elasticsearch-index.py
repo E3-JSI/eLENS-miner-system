@@ -201,6 +201,7 @@ if __name__=='__main__':
     for document in documents:
         if "date" in document and document["date"]:
             # format the date value
+            print(document["date"])
 
             if "/" in document["date"]:
                 date = document["date"].split("/")
@@ -257,7 +258,18 @@ if __name__=='__main__':
                     langs.append(lang.capitalize())
 
             document["languages"] = langs
-        es.index(index="envirolens", id=document["document_id"], body=document)
+
+        print(document["languages"])
+        print(document["document_id"])
+
+        try:
+            es.index(index="envirolens", id=document["document_id"], body=document)
+        except KeyboardInterrupt:
+            raise
+        except Exception as e:
+            print(str(e))
+            pass
+
         if count % 1000 == 0:
             print("Number of indexed documents:", count)
         count = count + 1
